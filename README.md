@@ -277,13 +277,6 @@ npx tsc --noEmit    # type-check without building
 
 ---
 
-## 12. Deploy
-
-### One-click via Lovable
-
-Open [Lovable](https://lovable.dev/projects/0e7b5f39-5658-4e2a-8c92-2467df508c18)
-and click **Share → Publish**.
-
 ### Firebase Hosting
 
 ```sh
