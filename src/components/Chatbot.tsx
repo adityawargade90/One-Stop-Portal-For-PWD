@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageCircle, Send, X, Minimize2, Maximize2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { useToast } from '@/components/ui/use-toast';
 
 interface Message {
@@ -30,6 +30,17 @@ const Chatbot = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
+  const geminiModel = useMemo(() => {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) return null;
+    const genAI = new GoogleGenerativeAI(apiKey);
+    return genAI.getGenerativeModel({
+      model: 'gemini-2.0-flash',
+      systemInstruction:
+        'You are a helpful assistant for persons with disabilities. Provide accurate information about Indian government schemes, scholarships, jobs, healthcare services, and support available to persons with disabilities (Divyang). Be concise, empathetic, and helpful.',
+    });
+  }, []);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -53,18 +64,17 @@ const Chatbot = () => {
     setIsLoading(true);
 
     try {
-      const { data: functionData, error: functionError } = await supabase.functions.invoke('ai', {
-        body: { message: inputMessage }
-      });
-
-      if (functionError) {
-        throw new Error(functionError.message || "Failed to get AI response");
+      if (!geminiModel) {
+        throw new Error('VITE_GEMINI_API_KEY is not configured');
       }
+
+      const result = await geminiModel.generateContent(inputMessage);
+      const responseText = result.response.text();
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        content: functionData?.response || 'I apologize, but I couldn\'t process your request. Please try again.',
+        content: responseText || 'I apologize, but I couldn\'t process your request. Please try again.',
         timestamp: new Date()
       };
 

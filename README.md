@@ -13,13 +13,14 @@
 3. [Install Dependencies](#3-install-dependencies)
 4. [Configure Environment Variables](#4-configure-environment-variables)
 5. [Firebase Setup](#5-firebase-setup)
-6. [Run the Frontend (Dev Server)](#6-run-the-frontend-dev-server)
-7. [Run the Backend (Optional)](#7-run-the-backend-optional)
-8. [Build for Production](#8-build-for-production)
-9. [Preview the Production Build](#9-preview-the-production-build)
-10. [Troubleshooting](#10-troubleshooting)
-11. [Technology Stack](#11-technology-stack)
-12. [Deploy](#12-deploy)
+6. [Google Gemini AI Setup](#6-google-gemini-ai-setup)
+7. [Run the Frontend (Dev Server)](#7-run-the-frontend-dev-server)
+8. [Run the Backend (Optional)](#8-run-the-backend-optional)
+9. [Build for Production](#9-build-for-production)
+10. [Preview the Production Build](#10-preview-the-production-build)
+11. [Troubleshooting](#11-troubleshooting)
+12. [Technology Stack](#12-technology-stack)
+13. [Deploy](#13-deploy)
 
 ---
 
@@ -92,6 +93,9 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
 VITE_FIREBASE_APP_ID=1:123456789:web:abc123
 VITE_FIREBASE_MEASUREMENT_ID=G-XXXXXXXX   # optional
 
+# ── Google Gemini AI (required for the chatbot) ──────────────────────────────
+VITE_GEMINI_API_KEY=AIzaSy...
+
 # ── Google Maps (optional — used by location-based pages) ────────────────────
 VITE_GOOGLE_MAPS_API_KEY=AIzaSy...
 
@@ -154,7 +158,30 @@ service cloud.firestore {
 
 ---
 
-## 6. Run the Frontend (Dev Server)
+## 6. Google Gemini AI Setup
+
+The chatbot uses the **Google Gemini 2.0 Flash** model, which is available for **free** via Google AI Studio.
+
+### 6.1 — Get a free Gemini API key
+
+1. Go to <https://aistudio.google.com/apikey>
+2. Sign in with your Google account.
+3. Click **Create API key** → choose a project (or create a new one).
+4. Copy the generated key.
+
+### 6.2 — Add the key to your `.env`
+
+```
+VITE_GEMINI_API_KEY=AIzaSy...
+```
+
+> **Note:** The Gemini free tier supports up to 15 requests per minute and 1 million tokens
+> per day — more than sufficient for development and personal use.
+> See [pricing](https://ai.google.dev/pricing) for details.
+
+---
+
+## 7. Run the Frontend (Dev Server)
 
 ```sh
 # From the project root
@@ -174,7 +201,7 @@ Open that URL in your browser to see the app.
 
 ---
 
-## 7. Run the Backend (Optional)
+## 8. Run the Backend (Optional)
 
 The Express backend (`./Backend/server.js`) exposes REST endpoints for legacy
 JWT-based auth and MongoDB profile storage. It is **not required** to run the
@@ -197,7 +224,7 @@ The backend listens on **http://localhost:5000**.
 
 ---
 
-## 8. Build for Production
+## 9. Build for Production
 
 ```sh
 npm run build
@@ -209,7 +236,7 @@ Firebase Hosting, GitHub Pages, etc.).
 
 ---
 
-## 9. Preview the Production Build
+## 10. Preview the Production Build
 
 Run this after `npm run build` to serve the `dist/` folder and test it locally
 before deploying:
@@ -222,7 +249,12 @@ Opens at **http://localhost:4173** by default.
 
 ---
 
-## 10. Troubleshooting
+## 11. Troubleshooting
+
+### Chatbot shows "Failed to send message"
+- Make sure `VITE_GEMINI_API_KEY` is set in `.env` and that the key is valid.
+- Get a free key at <https://aistudio.google.com/apikey>.
+- Restart the dev server after updating `.env`.
 
 ### "Firebase: Error (auth/...)" on sign-in or sign-up
 - Double-check that `VITE_FIREBASE_*` values in `.env` match the ones in the
@@ -260,7 +292,7 @@ npx tsc --noEmit    # type-check without building
 
 ---
 
-## 11. Technology Stack
+## 12. Technology Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -269,6 +301,7 @@ npx tsc --noEmit    # type-check without building
 | Language | TypeScript |
 | UI components | shadcn-ui + Radix UI |
 | Styling | Tailwind CSS |
+| AI Chatbot | Google Gemini 2.0 Flash (`@google/generative-ai`) |
 | Database | Firebase Firestore |
 | Authentication | Firebase Auth (Email/Password) |
 | Maps | React Google Maps / React Leaflet |
@@ -277,7 +310,7 @@ npx tsc --noEmit    # type-check without building
 
 ---
 
-### Firebase Hosting
+## 13. Deploy
 
 ```sh
 npm install -g firebase-tools
@@ -292,7 +325,7 @@ firebase deploy
 1. Connect your GitHub repository in the Vercel / Netlify dashboard.
 2. Set **Build command** → `npm run build`
 3. Set **Output directory** → `dist`
-4. Add all `VITE_FIREBASE_*` environment variables in the hosting dashboard.
+4. Add all `VITE_FIREBASE_*` and `VITE_GEMINI_API_KEY` environment variables in the hosting dashboard.
 5. Deploy.
 
 ### Custom domain
