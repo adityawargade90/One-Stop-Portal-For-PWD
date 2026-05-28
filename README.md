@@ -302,7 +302,3 @@ follow your hosting provider's domain setup guide.
 
 ---
 
-## Project info (Lovable)
-
-**URL**: https://lovable.dev/projects/0e7b5f39-5658-4e2a-8c92-2467df508c18
-
